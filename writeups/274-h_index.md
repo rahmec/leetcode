@@ -25,8 +25,19 @@ So we use a candidate and set it if it's higher than current calculated h-index.
 Put in a synthetic way, the candidate is the minimum between remaining papers and the number of citations.
 H-index is the maximum between current h-index and the candidate.
 
+This is my first solution, an O(n\*log(n)) one.
+Can it be improved? Well, there's the basic rule: if it does more than required, very probably it can be.
+
+Matter of fact, this can be done in O(n) time.
+The logic is: we know h-index is between 0 and n. 
+Traverse it once and use an array to keep track of number of papers with i citations.
+Than traverse the new array from the end and cumulative sum the papers until the sum is higher than the number of citations i checking. 
+
 ## Code 
 
+### First solution (O(n\*log(n))
+
+'''
 void swap(int* a, int* b){
     int temp = *a;
     *a = *b;
@@ -62,21 +73,45 @@ void quickSort(int* array, int low, int high){
 int hIndex(int* citations, int citationsSize) {
     
     quickSort(citations, 0, citationsSize-1);
-    int h = 0;
-    int h_candidate = 0;
+
+    for(int i=0; i<citationsSize; i++){
+        if(n-i <= citationsSize[i])
+            return n-i;
+    }
+
+    return 0;
+    
+}
+'''
+
+### Second solution (O(n))
+
+'''
+int hIndex(int* citations, int citationsSize) {
+    
+    int papers_per_cit[citationsSize+1];
+
+    for(int i = 0; i<citationsSize+1; i++){
+        papers_per_cit[i]=0;
+    }
 
     for(int i = 0; i<citationsSize; i++){
-        if(citations[i] <= citationsSize - i){
-            h_candidate = citations[i];
+        if(citations[i]>=citationsSize){
+            papers_per_cit[citationsSize]++;
         }else{
-            h_candidate = citationsSize - i;
-        }
-        if(h_candidate>h){
-            h = h_candidate;
+            papers_per_cit[citations[i]]++;
         }
     }
 
-    return h;
+    int cum_papers_sum = 0;
+    for(int i = citationsSize; i>=0; i--){
+        cum_papers_sum += papers_per_cit[i];
+        if(cum_papers_sum >= i){
+            return i;
+        }
+    }
+
+    return 0;
     
 }
-
+'''
